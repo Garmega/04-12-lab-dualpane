@@ -39,6 +39,15 @@ public class MoviesFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public static MoviesFragment newInstance(String searchTerm){
+        MoviesFragment fragment = new MoviesFragment();
+        Bundle args = new Bundle();
+        args.putString("searchTerm", searchTerm);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -56,6 +65,10 @@ public class MoviesFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
+
+        if(getArguments() != null){
+            searchTerm = getArguments().getString("searchTerm");
+        }
 
         //controller
         adapter = new ArrayAdapter<Movie>(this.getActivity(),
@@ -76,12 +89,6 @@ public class MoviesFragment extends Fragment {
             }
         });
 
-
-        Log.v(TAG, "In create bundle: "+savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.getString("searchTerm") != null) {
-            fetchData(savedInstanceState.getString("searchTerm"));
-        }
-
         return rootView;
     }
 
@@ -92,32 +99,6 @@ public class MoviesFragment extends Fragment {
             fetchData(searchTerm);
         }
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.v(TAG, "savings out state");
-        outState.putString("searchTerm",this.searchTerm);
-    }
-
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//        Log.v(TAG, "In state: "+savedInstanceState);
-//        if(savedInstanceState != null && savedInstanceState.getString("searchTerm") != null) {
-//            fetchData(savedInstanceState.getString("searchTerm"));
-//        }
-//    }
-
-    //
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        Log.v(TAG, "In state: "+savedInstanceState);
-//        if(savedInstanceState != null && savedInstanceState.getString("searchTerm") != null){
-//            fetchData(savedInstanceState.getString("searchTerm"));
-//        }
-//    }
 
     //helper method for downloading the data via the MovieDowloadTask
     public void fetchData(String searchTerm){
@@ -142,9 +123,11 @@ public class MoviesFragment extends Fragment {
         protected void onPostExecute(ArrayList<Movie> movies) {
             super.onPostExecute(movies);
 
-            adapter.clear();
-            for(Movie movie : movies){
-                adapter.add(movie);
+            if(movies != null) {
+                adapter.clear();
+                for (Movie movie : movies) {
+                    adapter.add(movie);
+                }
             }
         }
     }
